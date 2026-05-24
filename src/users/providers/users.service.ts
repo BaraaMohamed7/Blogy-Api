@@ -1,13 +1,16 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { AuthService } from '../../auth/providers/auth.service';
 
+/** Users Service - Handles user-related operations */
 @Injectable()
 export class UsersService {
+  /** Inject AuthService to handle authentication-related operations */
   constructor(
     @Inject(forwardRef(() => AuthService))
     private readonly authSerivce: AuthService,
   ) {}
 
+  /** Get all users paginated or user by ID */
   public findAllUsers(limit: number, page: number) {
     return [
       {
@@ -28,6 +31,7 @@ export class UsersService {
     ];
   }
 
+  /** Get user by ID */
   public findUserById(id: number) {
     return {
       id,

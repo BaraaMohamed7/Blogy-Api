@@ -16,11 +16,13 @@ import { CreateUserDTO } from './dtos/create-user.dto';
 import { UsersService } from './providers/users.service';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+/** Users Controller - Handles user-related requests */
 @Controller('users')
 @ApiTags('Users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  /** Get user by ID or List of users paginated */
   @ApiOperation({
     summary: 'Get user by ID or List of users paginated',
   })
@@ -55,6 +57,14 @@ export class UsersController {
     return this.usersService.findAllUsers(limit, page);
   }
 
+  /** Create a new user */
+  @ApiOperation({
+    summary: 'Create a new user',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'The user has been successfully created.',
+  })
   @Post()
   public createUser(@Body() createUserDto: CreateUserDTO) {
     console.log(createUserDto);
@@ -62,12 +72,28 @@ export class UsersController {
     return 'you sent a post request to users endpoint';
   }
 
+  /** Edit an existing user */
+  @ApiOperation({
+    summary: 'Edit an existing user',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'The user has been successfully updated.',
+  })
   @Patch()
   public EditUser(@Body() patchUserDto: PatchUserDTO) {
     console.log(patchUserDto);
     return 'you sent a patch request to users endpoint';
   }
 
+  /** Delete an existing user */
+  @ApiOperation({
+    summary: 'Delete an existing user',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'The user has been successfully deleted.',
+  })
   @Delete()
   public deleteUser() {
     return 'you sent a delete request to users endpoint';
