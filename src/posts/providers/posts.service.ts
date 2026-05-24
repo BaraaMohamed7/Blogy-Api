@@ -1,3 +1,4 @@
+import { CreatePostDTO } from '../dtos/create-post.dto';
 import { UsersService } from './../../users/providers/users.service';
 import { Injectable } from '@nestjs/common';
 
@@ -19,5 +20,12 @@ export class PostsService {
         content: 'Content of post 2',
       },
     ];
+  }
+
+  public createPost(createPostDto: CreatePostDTO) {
+    return {
+      ...createPostDto,
+      id: Math.floor(Math.random() * 1000),
+    };
   }
 }
