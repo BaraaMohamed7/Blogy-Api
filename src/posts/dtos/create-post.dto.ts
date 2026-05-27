@@ -1,6 +1,7 @@
 import {
   IsArray,
   IsEnum,
+  IsInt,
   IsISO8601,
   IsJSON,
   IsNotEmpty,
@@ -8,18 +9,20 @@ import {
   IsString,
   IsUrl,
   Matches,
+  MaxLength,
   MinLength,
   ValidateNested,
 } from 'class-validator';
 import { PostType } from '../enums/postType.enum';
 import { PostStatus } from '../enums/postStatus.enum';
-import { CreatePostMetaOptionsDTO } from './create-post-meta-options.dto';
+import { CreatePostMetaOptionsDTO } from '../../meta-options/dtos/create-post-meta-options.dto';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreatePostDTO {
   @IsString()
   @MinLength(4)
+  @MaxLength(512)
   @IsNotEmpty()
   @ApiProperty({
     description: 'The title of the post',
@@ -40,6 +43,7 @@ export class CreatePostDTO {
     message:
       'Slug must be lowercase, alphanumeric, and can contain hyphens (no spaces or special characters)',
   })
+  @MaxLength(256)
   @IsNotEmpty()
   @ApiProperty({
     description: 'The slug of the post',
@@ -75,6 +79,7 @@ export class CreatePostDTO {
 
   @IsUrl()
   @IsOptional()
+  @MaxLength(1024)
   @ApiPropertyOptional({
     description: 'The URL of the featured image for the post',
     example: 'https://example.com/featured-image.jpg',
@@ -82,41 +87,44 @@ export class CreatePostDTO {
   featuredImageUrl?: string;
 
   @IsISO8601()
-  @IsNotEmpty()
+  @IsOptional()
   @ApiProperty({
     description: 'The date and time when the post should be published',
     example: '2023-10-01T00:00:00.000Z',
   })
-  publishOn: Date;
+  publishOn?: Date;
 
-  @IsArray()
-  @IsString({ each: true })
-  @MinLength(3, { each: true })
-  @IsOptional()
-  @ApiPropertyOptional({
-    description: 'The tags for the post',
-    example: ['technology', 'programming'],
-  })
-  tags?: string[];
-
-  @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreatePostMetaOptionsDTO)
   @IsOptional()
   @ApiPropertyOptional({
     description: 'The meta options for the post',
-    type: 'array',
-    items: {
-      type: 'object',
-      properties: {
-        key: { type: 'string', example: 'seoTitle' },
-        value: {
-          type: 'string',
-          example: 'My First Blog Post - A Journey into Blogging',
-        },
+    type: 'object',
+    properties: {
+      metaValue: {
+        type: 'string',
+        example: '{"sidebarEnabled":true}',
       },
     },
-    required: false,
   })
-  metaOptions?: CreatePostMetaOptionsDTO[];
+  metaOptions?: CreatePostMetaOptionsDTO | null;
+
+  @IsInt()
+  @IsNotEmpty()
+  @ApiProperty({
+    type: 'integer',
+    required: true,
+    description: 'The ID of the author of the post',
+    example: 1,
+  })
+  authorId: number;
+
+  @IsArray()
+  @IsInt({ each: true })
+  @IsOptional()
+  @ApiPropertyOptional({
+    description: 'an array of tag IDs to associate with the post',
+    example: [1, 2],
+  })
+  tags?: number[];
 }

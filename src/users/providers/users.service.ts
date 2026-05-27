@@ -1,13 +1,14 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { AuthService } from '../../auth/providers/auth.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from '../user.entity';
+import { Injectable } from '@nestjs/common';
+import { CreateUserDTO } from '../dtos/create-user.dto';
 
 /** Users Service - Handles user-related operations */
 @Injectable()
 export class UsersService {
-  /** Inject AuthService to handle authentication-related operations */
   constructor(
-    @Inject(forwardRef(() => AuthService))
-    private readonly authSerivce: AuthService,
+    @InjectRepository(User) private readonly usersRepository: Repository<User>, // Replace 'any' with your User entity repository
   ) {}
 
   /** Get all users paginated or user by ID */
@@ -32,12 +33,27 @@ export class UsersService {
   }
 
   /** Get user by ID */
-  public findUserById(id: number) {
-    return {
-      id,
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john.doe@example.com',
-    };
+  public async findOneById(id: number) {
+    const user = await this.usersRepository.findOne({
+      where: { id },
+    });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    return user;
+  }
+
+  /** Create a new user */
+  public async createUser(createUserDto: CreateUserDTO) {
+    const { email } = createUserDto;
+    const existingUser = await this.usersRepository.findOne({
+      where: { email },
+    });
+    if (existingUser) {
+      throw new Error('User with this email already exists');
+    }
+    let newUser = this.usersRepository.create(createUserDto);
+    newUser = await this.usersRepository.save(newUser);
+    return newUser;
   }
 }

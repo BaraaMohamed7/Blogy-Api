@@ -1,4 +1,4 @@
-GET http://localhost:3000/posts/100
+GET http://localhost:3000/posts/?authorId=1
 
 POST http://localhost:3000/posts
 Content-Type: application/json
@@ -7,19 +7,16 @@ Content-Type: application/json
   "content": "This is the content of the new post.",
   "schema": "{\"name\":\"Apple\",\"price\":3.99,\"isAvailable\":true}",
   "postType": "post",
-  "slug": "new-post",
+  "slug": "new-post-5",
   "status": "draft",
   "featuredImageUrl": "http://example.com/image.jpg",
   "tags": ["tag1","tag2"],
-  "metaOptions": [
-      {
-          "key": "meta1",
-          "value": "value1"
-      },
-      {
-          "key": "meta2",
-          "value": "value2"
-      }
-  ],
+   "metaOptions":{
+    "metaValue": "{\"key\":\"value\"}"
+  },
+  "authorId": 1,
+  "tags": [1],
   "publishOn": "2024-06-01T12:00:00Z"
 }
+
+DELETE http://localhost:3000/posts?postId=7

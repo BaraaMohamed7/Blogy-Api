@@ -52,7 +52,7 @@ export class UsersController {
   ) {
     const { id } = getUserParamDto;
     if (id) {
-      return this.usersService.findUserById(id);
+      return this.usersService.findOneById(id);
     }
     return this.usersService.findAllUsers(limit, page);
   }
@@ -67,9 +67,7 @@ export class UsersController {
   })
   @Post()
   public createUser(@Body() createUserDto: CreateUserDTO) {
-    console.log(createUserDto);
-    console.log(typeof createUserDto);
-    return 'you sent a post request to users endpoint';
+    return this.usersService.createUser(createUserDto);
   }
 
   /** Edit an existing user */
