@@ -1,12 +1,18 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePostDTO } from '../dtos/create-post.dto';
 import { UsersService } from './../../users/providers/users.service';
-import { Body, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Injectable,
+  RequestTimeoutException,
+} from '@nestjs/common';
 import { Post } from '../post.entity';
 import { Repository } from 'typeorm';
 import { MetaOption } from '../../meta-options/meta-option.entity';
 import { TagsService } from '../../tags/providers/tags.service';
 import { PatchPostDTO } from '../dtos/patch-post.dto';
+import { Tag } from '../../tags/tag.entity';
 
 /** Posts service - Handles post-related operations */
 @Injectable()
@@ -39,7 +45,7 @@ export class PostsService {
   public async createPost(createPostDto: CreatePostDTO) {
     const author = await this.usersService.findOneById(createPostDto.authorId);
     if (!author) {
-      throw new Error('Author not found');
+      throw new BadRequestException('Author not found');
     }
 
     const tags = await this.tagsService.findMultipleByIds(createPostDto.tags!);
@@ -54,13 +60,35 @@ export class PostsService {
   }
 
   public async update(patchPostDto: PatchPostDTO) {
-    const tags = await this.tagsService.findMultipleByIds(patchPostDto.tags!);
-    const post = await this.postsRepository.findOne({
-      where: { id: patchPostDto.id },
-    });
+    let tags: Tag[] = [];
+    let post: Post | null = null;
+    try {
+      tags = await this.tagsService.findMultipleByIds(patchPostDto.tags!);
+    } catch (error) {
+      throw new RequestTimeoutException(
+        'Unable to process the request at this time. Please try again later.',
+        { description: 'Error connecting to the database' },
+      );
+    }
+    if (!tags || tags.length !== patchPostDto.tags!.length) {
+      throw new BadRequestException('One or more tags not found');
+    }
+
+    try {
+      post = await this.postsRepository.findOne({
+        where: { id: patchPostDto.id },
+      });
+    } catch (error) {
+      throw new RequestTimeoutException(
+        'Unable to process the request at this time. Please try again later.',
+        { description: 'Error connecting to the database' },
+      );
+    }
 
     if (!post) {
-      throw new Error('Post not found');
+      throw new BadRequestException(
+        'Post not found, please check the ID and try again',
+      );
     }
 
     post.title = patchPostDto.title ?? post.title;
@@ -72,13 +100,20 @@ export class PostsService {
       patchPostDto.featuredImageUrl ?? post.featuredImageUrl;
     post.publishOn = patchPostDto.publishOn ?? post.publishOn;
     post.tags = tags;
-    return await this.postsRepository.save(post);
+    try {
+      return await this.postsRepository.save(post);
+    } catch (error) {
+      throw new RequestTimeoutException(
+        'Unable to update the post at this time. Please try again later.',
+        { description: 'Error connecting to the database' },
+      );
+    }
   }
 
   public async delete(postId: number) {
     const post = await this.postsRepository.delete(postId);
     if (!post.affected) {
-      return { message: 'Post not found' };
+      throw new BadRequestException('Post not found');
     }
     return { message: 'Post and associated meta options deleted successfully' };
   }
