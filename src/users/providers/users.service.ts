@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { User } from '../user.entity';
 import {
   BadRequestException,
@@ -7,12 +7,17 @@ import {
   RequestTimeoutException,
 } from '@nestjs/common';
 import { CreateUserDTO } from '../dtos/create-user.dto';
+import { UsersCreateManyProvider } from './users-create-many.provider';
+import { CreateManyUsersDTO } from '../dtos/create-many-users.dto';
 
 /** Users Service - Handles user-related operations */
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>, // Replace 'any' with your User entity repository
+
+    private readonly dataSource: DataSource,
+    private readonly usersCreateManyProvider: UsersCreateManyProvider,
   ) {}
 
   /** Get all users paginated or user by ID */
@@ -91,5 +96,7 @@ export class UsersService {
     return newUser;
   }
 
-  public async createMany(createUserDtos: CreateUserDTO[]) {}
+  public async createMany(createManyUsersDto: CreateManyUsersDTO) {
+    return this.usersCreateManyProvider.createMany(createManyUsersDto);
+  }
 }
