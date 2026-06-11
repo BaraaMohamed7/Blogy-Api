@@ -13,6 +13,9 @@ import { MetaOption } from '../../meta-options/meta-option.entity';
 import { TagsService } from '../../tags/providers/tags.service';
 import { PatchPostDTO } from '../dtos/patch-post.dto';
 import { Tag } from '../../tags/tag.entity';
+import { GetPostsDto } from '../dtos/get-posts.dto';
+import { PaginationProvider } from '../../common/pagination/providers/pagination.provider';
+import { Paginated } from '../../common/pagination/interfaces/paginated.interface';
 
 /** Posts service - Handles post-related operations */
 @Injectable()
@@ -25,19 +28,20 @@ export class PostsService {
     private readonly postsRepository: Repository<Post>,
     private readonly usersService: UsersService,
     private readonly tagsService: TagsService,
+    private readonly paginationProvider: PaginationProvider,
   ) {}
 
   /** Retrieves all posts for a given user ID */
-  public async findAllPosts(authorId: string) {
+  public async findAll(
+    authorId: string,
+    postQuery: GetPostsDto,
+  ): Promise<Paginated<Post>> {
     // const author = this.usersService.findUserById(Number(authorId));
 
-    const posts = await this.postsRepository.find({
-      relations: {
-        metaOptions: true,
-        author: true,
-        tags: true,
-      },
-    });
+    const posts = await this.paginationProvider.paginateQuery(
+      postQuery,
+      this.postsRepository,
+    );
     return posts;
   }
 
@@ -49,6 +53,14 @@ export class PostsService {
     }
 
     const tags = await this.tagsService.findMultipleByIds(createPostDto.tags!);
+
+    const existingPost = await this.postsRepository.findOne({
+      where: { slug: createPostDto.slug },
+    });
+
+    if (existingPost) {
+      throw new BadRequestException('Post with this slug already exists');
+    }
 
     let post = this.postsRepository.create({
       author,

@@ -75,15 +75,20 @@ export class Post {
   publishOn?: Date;
 
   @OneToOne(() => MetaOption, (metaOption) => metaOption.post, {
+    eager: true,
     cascade: true,
     nullable: true,
   })
   metaOptions?: MetaOption | null;
 
-  @ManyToOne(() => User, (user) => user.posts)
+  @ManyToOne(() => User, (user) => user.posts, {
+    eager: true,
+  })
   author: User;
 
-  @ManyToMany(() => Tag, (tag) => tag.posts)
+  @ManyToMany(() => Tag, (tag) => tag.posts, {
+    eager: true,
+  })
   @JoinTable({
     name: 'post_tags',
   })
