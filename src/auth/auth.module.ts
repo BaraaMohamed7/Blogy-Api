@@ -7,6 +7,7 @@ import { BcryptProvider } from './providers/bcrypt.provider';
 import { ConfigModule } from '@nestjs/config';
 import jwtConfig from '../config/jwt.config';
 import { JwtModule } from '@nestjs/jwt';
+import { GenerateTokensProvider } from './providers/generate-tokens.provider';
 @Module({
   imports: [
     forwardRef(() => UsersModule),
@@ -20,6 +21,7 @@ import { JwtModule } from '@nestjs/jwt';
       provide: HashingProvider,
       useClass: BcryptProvider,
     },
+    GenerateTokensProvider,
   ],
   exports: [AuthService, HashingProvider],
 })
