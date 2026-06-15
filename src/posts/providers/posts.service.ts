@@ -4,6 +4,7 @@ import { UsersService } from './../../users/providers/users.service';
 import {
   BadRequestException,
   Body,
+  ConflictException,
   Injectable,
   RequestTimeoutException,
 } from '@nestjs/common';
@@ -16,6 +17,8 @@ import { Tag } from '../../tags/tag.entity';
 import { GetPostsDto } from '../dtos/get-posts.dto';
 import { PaginationProvider } from '../../common/pagination/providers/pagination.provider';
 import { Paginated } from '../../common/pagination/interfaces/paginated.interface';
+import { ActiveUserData } from '../../auth/interfaces/active-user-data.interface';
+import { User } from '../../users/user.entity';
 
 /** Posts service - Handles post-related operations */
 @Injectable()
@@ -46,13 +49,19 @@ export class PostsService {
   }
 
   /** Creates a new post */
-  public async createPost(createPostDto: CreatePostDTO) {
-    const author = await this.usersService.findOneById(createPostDto.authorId);
-    if (!author) {
-      throw new BadRequestException('Author not found');
-    }
+  public async createPost(createPostDto: CreatePostDTO, user: ActiveUserData) {
+    let author: User | null = null;
+    let tags: Tag[] = [];
+    try {
+      author = await this.usersService.findOneById(user.sub);
+      tags = await this.tagsService.findMultipleByIds(createPostDto.tags || []);
 
-    const tags = await this.tagsService.findMultipleByIds(createPostDto.tags!);
+      if (createPostDto.tags && tags.length !== createPostDto.tags.length) {
+        throw new BadRequestException('One or more tags not found');
+      }
+    } catch (error) {
+      throw new ConflictException(error);
+    }
 
     const existingPost = await this.postsRepository.findOne({
       where: { slug: createPostDto.slug },
@@ -75,7 +84,7 @@ export class PostsService {
     let tags: Tag[] = [];
     let post: Post | null = null;
     try {
-      tags = await this.tagsService.findMultipleByIds(patchPostDto.tags!);
+      tags = await this.tagsService.findMultipleByIds(patchPostDto.tags || []);
     } catch (error) {
       throw new RequestTimeoutException(
         'Unable to process the request at this time. Please try again later.',

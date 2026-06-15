@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Tag } from '../tag.entity';
 import { CreateTagDTO } from '../dtos/create-tag.dto';
@@ -17,11 +17,16 @@ export class TagsService {
   }
 
   public async findMultipleByIds(tags: number[]) {
-    const result = await this.tagRepository.find({
-      where: {
-        id: In(tags),
-      },
-    });
+    let result: Tag[] = [];
+    try {
+      result = await this.tagRepository.find({
+        where: {
+          id: tags.length > 0 ? In(tags) : undefined,
+        },
+      });
+    } catch (error) {
+      throw new ConflictException(error);
+    }
     return result;
   }
 

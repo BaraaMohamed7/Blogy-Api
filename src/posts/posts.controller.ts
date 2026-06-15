@@ -14,6 +14,8 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreatePostDTO } from './dtos/create-post.dto';
 import { PatchPostDTO } from './dtos/patch-post.dto';
 import { GetPostsDto } from './dtos/get-posts.dto';
+import { ActiveUser } from '../auth/decorators/active-user.decorator';
+import { type ActiveUserData } from '../auth/interfaces/active-user-data.interface';
 
 @Controller('posts')
 @ApiTags('Posts')
@@ -33,7 +35,6 @@ export class PostsController {
     @Param('userId') userId: string,
     @Query() postQuery: GetPostsDto,
   ) {
-    console.log('Received query parameters:', postQuery);
     return this.postsService.findAll(userId, postQuery);
   }
 
@@ -46,8 +47,11 @@ export class PostsController {
     description: 'The post has been successfully created.',
   })
   @Post()
-  public createPost(@Body() createPostDto: CreatePostDTO) {
-    return this.postsService.createPost(createPostDto);
+  public createPost(
+    @Body() createPostDto: CreatePostDTO,
+    @ActiveUser() user: ActiveUserData,
+  ) {
+    return this.postsService.createPost(createPostDto, user);
   }
 
   /** Updates an existing post */

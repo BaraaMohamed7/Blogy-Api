@@ -111,16 +111,6 @@ export class CreatePostDTO {
   })
   metaOptions?: CreatePostMetaOptionsDTO | null;
 
-  @IsInt()
-  @IsNotEmpty()
-  @ApiProperty({
-    type: 'integer',
-    required: true,
-    description: 'The ID of the author of the post',
-    example: 1,
-  })
-  authorId: number;
-
   @IsArray()
   @IsInt({ each: true })
   @IsOptional()

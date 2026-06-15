@@ -12,7 +12,7 @@ import { Post } from '../posts/post.entity';
 @Entity('Tag')
 export class Tag {
   @PrimaryGeneratedColumn()
-  id: string;
+  id: number;
 
   @Column({
     type: 'varchar',

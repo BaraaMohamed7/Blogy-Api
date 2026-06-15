@@ -16,6 +16,8 @@ import { CreateUserDTO } from './dtos/create-user.dto';
 import { UsersService } from './providers/users.service';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateManyUsersDTO } from './dtos/create-many-users.dto';
+import { Auth } from '../auth/decorators/auth.decorator';
+import { AuthType } from '../auth/enums/auth-type.enum';
 
 /** Users Controller - Handles user-related requests */
 @Controller('users')
@@ -66,6 +68,7 @@ export class UsersController {
     status: 201,
     description: 'The user has been successfully created.',
   })
+  @Auth(AuthType.None)
   @Post()
   public createUser(@Body() createUserDto: CreateUserDTO) {
     return this.usersService.createUser(createUserDto);

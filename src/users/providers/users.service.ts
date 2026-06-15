@@ -10,6 +10,7 @@ import { CreateUserDTO } from '../dtos/create-user.dto';
 import { UsersCreateManyProvider } from './users-create-many.provider';
 import { CreateManyUsersDTO } from '../dtos/create-many-users.dto';
 import { CreateUserProvider } from './create-user.provider';
+import { PaginationProvider } from '../../common/pagination/providers/pagination.provider';
 
 /** Users Service - Handles user-related operations */
 @Injectable()
@@ -18,27 +19,13 @@ export class UsersService {
     @InjectRepository(User) private readonly usersRepository: Repository<User>, // Replace 'any' with your User entity repository
     private readonly usersCreateManyProvider: UsersCreateManyProvider,
     private readonly createUserProvider: CreateUserProvider,
+    // private readonly paginationProvider: PaginationProvider,
   ) {}
 
   /** Get all users paginated or user by ID */
   public findAllUsers(limit: number, page: number) {
-    return [
-      {
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john.doe@example.com',
-      },
-      {
-        firstName: 'Jane',
-        lastName: 'Smith',
-        email: 'jane.smith@example.com',
-      },
-      {
-        firstName: 'Alice',
-        lastName: 'Johnson',
-        email: 'alice.johnson@example.com',
-      },
-    ];
+    // const users = this.paginationProvider;
+    return [{ id: 1, name: 'Baraa' }];
   }
 
   /** Get user by ID */
