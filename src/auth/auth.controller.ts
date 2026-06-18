@@ -4,14 +4,15 @@ import { SignInDto } from './dtos/sign-in.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Auth } from './decorators/auth.decorator';
 import { AuthType } from './enums/auth-type.enum';
+import { RefreshTokenDto } from './dtos/refresh-token.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   /** Method to handle user sign-in */
-  @Auth(AuthType.None)
   @Post('sign-in')
+  @Auth(AuthType.None)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'User Sign-In',
@@ -23,5 +24,21 @@ export class AuthController {
   })
   public async signIn(@Body() signInDto: SignInDto) {
     return this.authService.signIn(signInDto);
+  }
+
+  @Post('refresh-tokens')
+  @Auth(AuthType.None)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Refresh Tokens',
+    description:
+      'Refresh access and refresh tokens using a valid refresh token',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Tokens refreshed successfully',
+  })
+  public async refreshTokens(@Body() refreshTokenDto: RefreshTokenDto) {
+    return await this.authService.refreshTokens(refreshTokenDto);
   }
 }

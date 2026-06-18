@@ -10,5 +10,7 @@ export default registerAs('jwt', () => {
       process.env.JWT_REFRESH_TOKEN_TTL ?? '86400',
       10,
     ), // Default to 1 day if not set
+    googleClientId: process.env.GOOGLE_CLIENT_ID,
+    googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
   };
 });
