@@ -19,6 +19,8 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthenticationGuard } from './auth/guards/authentication/authentication.guard';
 import { DataResponseInterceptor } from './common/interceptors/data-response/data-response.interceptor';
 import { UploadsModule } from './uploads/uploads.module';
+import { S3Client } from '@aws-sdk/client-s3';
+import { AwsModule } from './aws/aws.module';
 
 const ENV = process.env.NODE_ENV;
 
@@ -53,6 +55,7 @@ const ENV = process.env.NODE_ENV;
     MetaOptionsModule,
     PaginationModule,
     UploadsModule,
+    AwsModule,
   ],
   controllers: [AppController],
   providers: [
