@@ -10,7 +10,9 @@ import { CreateUserDTO } from '../dtos/create-user.dto';
 import { UsersCreateManyProvider } from './users-create-many.provider';
 import { CreateManyUsersDTO } from '../dtos/create-many-users.dto';
 import { CreateUserProvider } from './create-user.provider';
-import { PaginationProvider } from '../../common/pagination/providers/pagination.provider';
+import { CreateGoogleUserProvider } from './create-google-user.provider';
+import { GoogleUser } from '../interfaces/google-user.interface';
+// import { PaginationProvider } from '../../common/pagination/providers/pagination.provider';
 
 /** Users Service - Handles user-related operations */
 @Injectable()
@@ -19,6 +21,7 @@ export class UsersService {
     @InjectRepository(User) private readonly usersRepository: Repository<User>, // Replace 'any' with your User entity repository
     private readonly usersCreateManyProvider: UsersCreateManyProvider,
     private readonly createUserProvider: CreateUserProvider,
+    private readonly createGoogleUserProvider: CreateGoogleUserProvider,
     // private readonly paginationProvider: PaginationProvider,
   ) {}
 
@@ -66,6 +69,21 @@ export class UsersService {
     return user;
   }
 
+  public async findOneByGoogleId(googleId: string) {
+    let user: User | null = null;
+    try {
+      user = await this.usersRepository.findOneBy({
+        googleId,
+      });
+    } catch (error) {
+      throw new RequestTimeoutException(
+        'Unable to process the request at this time. Please try again later.',
+        { description: 'Error connecting to the database' },
+      );
+    }
+    return user;
+  }
+
   /** Create a new user */
   public async createUser(createUserDto: CreateUserDTO) {
     return this.createUserProvider.createUser(createUserDto);
@@ -73,5 +91,9 @@ export class UsersService {
 
   public async createMany(createManyUsersDto: CreateManyUsersDTO) {
     return this.usersCreateManyProvider.createMany(createManyUsersDto);
+  }
+
+  public async createGoogleUser(googleUser: GoogleUser) {
+    return this.createGoogleUserProvider.createGoogleUser(googleUser);
   }
 }

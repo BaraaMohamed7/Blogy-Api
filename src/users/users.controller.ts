@@ -2,6 +2,7 @@ import { PatchUserDTO } from './dtos/patch-user.dto';
 import { GetUserParamDTO } from './dtos/get-user-param.dto';
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   DefaultValuePipe,
   Delete,
@@ -11,6 +12,7 @@ import {
   Patch,
   Post,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CreateUserDTO } from './dtos/create-user.dto';
 import { UsersService } from './providers/users.service';
@@ -61,6 +63,9 @@ export class UsersController {
   }
 
   /** Create a new user */
+  @Post()
+  @Auth(AuthType.None)
+  @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({
     summary: 'Create a new user',
   })
@@ -68,8 +73,6 @@ export class UsersController {
     status: 201,
     description: 'The user has been successfully created.',
   })
-  @Auth(AuthType.None)
-  @Post()
   public createUser(@Body() createUserDto: CreateUserDTO) {
     return this.usersService.createUser(createUserDto);
   }
