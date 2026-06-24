@@ -12,6 +12,7 @@ import { HashingProvider } from './hashing.provider';
 import { GenerateTokensProvider } from './generate-tokens.provider';
 import { RefreshTokensProvider } from './refresh-tokens.provider';
 import { RefreshTokenDto } from '../dtos/refresh-token.dto';
+import { MailService } from '../../mail/providers/mail.service';
 
 /** Authentication service for handling user authentication logic */
 @Injectable()
@@ -23,6 +24,7 @@ export class AuthService {
     private readonly hashingProvider: HashingProvider,
     private readonly generateTokensProvider: GenerateTokensProvider,
     private readonly refreshTokensProvider: RefreshTokensProvider,
+    private readonly mailService: MailService,
   ) {}
 
   /** Method to handle user sign-in logic */
@@ -52,6 +54,7 @@ export class AuthService {
         throw new UnauthorizedException('Invalid password');
       }
     }
+
     return await this.generateTokensProvider.generateTokens(existingUser);
   }
 

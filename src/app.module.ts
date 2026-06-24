@@ -21,6 +21,7 @@ import { DataResponseInterceptor } from './common/interceptors/data-response/dat
 import { UploadsModule } from './uploads/uploads.module';
 import { S3Client } from '@aws-sdk/client-s3';
 import { AwsModule } from './aws/aws.module';
+import { MailModule } from './mail/mail.module';
 
 const ENV = process.env.NODE_ENV;
 
@@ -56,6 +57,7 @@ const ENV = process.env.NODE_ENV;
     PaginationModule,
     UploadsModule,
     AwsModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [
